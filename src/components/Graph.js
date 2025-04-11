@@ -34,7 +34,7 @@ const Graph = ({ date, selectedOption }) => {
                     setChartData({
                         labels,
                         datasets: [{
-                            label: 'Electricity Demand (MW)',
+                            label: 'Electricity Load (MW)',
                             data: loadData,
                             backgroundColor: loadData.map((_, index) =>
                                 index === peakDemandIndex ? 'rgba(191, 124, 65, 0.7)' : 'rgba(170,191,185,0.5)'
@@ -95,7 +95,7 @@ const Graph = ({ date, selectedOption }) => {
             title: {
                 display: true,
                 text: selectedOption === 'electricity'
-                    ? 'Electricity Demand'
+                    ? 'Electricity Load'
                     : 'Weather Data',
                 color: '#0F1926', // Dark blue color from your scheme
                 font: {
@@ -138,7 +138,7 @@ const Graph = ({ date, selectedOption }) => {
             y: selectedOption === 'electricity' ? {
                 title: {
                     display: true,
-                    text: 'Electricity Demand (MW)',
+                    text: 'Electricity Load (MW)',
                     color: '#0F1926'
                 },
                 beginAtZero: true,
