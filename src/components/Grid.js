@@ -1,149 +1,72 @@
-import React, { useState } from 'react';
+// Grid.js
+import React, { useState, useEffect } from 'react';
 
-function Grid() {
-    const [electricityData, setElectricityData] = useState([
-        {
-            "date": "1-Jan-24",
-            "time": "0",
-            "weekday": "Monday",
-            "temperature": 11,
-            "humidity": 95,
-            "weather": "Fog",
-            "windspeed": 0
-        },
-        {
-            "date": "1-Jan-24",
-            "time": "6",
-            "weekday": "Monday",
-            "temperature": 13,
-            "humidity": 82,
-            "weather": "Fog",
-            "windspeed": 7
-        },
-        {
-            "date": "1-Jan-24",
-            "time": "12",
-            "weekday": "Monday",
-            "temperature": 17,
-            "humidity": 69,
-            "weather": "Sunny",
-            "windspeed": 6
-        },
-        {
-            "date": "1-Jan-24",
-            "time": "18",
-            "weekday": "Monday",
-            "temperature": 11,
-            "humidity": 88,
-            "weather": "Fog",
-            "windspeed": 0
-        },
-        {
-            "date": "2-Jan-24",
-            "time": "0",
-            "weekday": "Tuesday",
-            "temperature": 10,
-            "humidity": 94,
-            "weather": "Fog",
-            "windspeed": 2
-        },
-        {
-            "date": "2-Jan-24",
-            "time": "6",
-            "weekday": "Tuesday",
-            "temperature": 13,
-            "humidity": 76,
-            "weather": "Fog",
-            "windspeed": 4
-        },
-        {
-            "date": "2-Jan-24",
-            "time": "12",
-            "weekday": "Tuesday",
-            "temperature": 17,
-            "humidity": 58,
-            "weather": "Sunny",
-            "windspeed": 2
-        },
-        {
-            "date": "2-Jan-24",
-            "time": "18",
-            "weekday": "Tuesday",
-            "temperature": 9,
-            "humidity": 94,
-            "weather": "Fog",
-            "windspeed": 2
-        },
-        {
-            "date": "3-Jan-24",
-            "time": "6",
-            "weekday": "Wednesday",
-            "temperature": 11,
-            "humidity": 88,
-            "weather": "Fog",
-            "windspeed": 6
-        },
-        {
-            "date": "3-Jan-24",
-            "time": "12",
-            "weekday": "Wednesday",
-            "temperature": 15,
-            "humidity": 70,
-            "weather": "Sunny",
-            "windspeed": 2
-        },
-        {
-            "date": "3-Jan-24",
-            "time": "18",
-            "weekday": "Wednesday",
-            "temperature": 10,
-            "humidity": 94,
-            "weather": "Fog",
-            "windspeed": 2
-        },
-        {
-            "date": "4-Jan-24",
-            "time": "0",
-            "weekday": "Thursday",
-            "temperature": 10,
-            "humidity": 95,
-            "weather": "Fog",
-            "windspeed": 6
-        },
-        {
-            "date": "4-Jan-24",
-            "time": "6",
-            "weekday": "Thursday",
-            "temperature": 12,
-            "humidity": 86,
-            "weather": "Fog",
-            "windspeed": 8
-        }
-    ]);
+function Grid({ date }) {
+    const [gridData, setGridData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/api/load/${date}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const apiData = await response.json();
+
+                // Transform data for grid display
+                const transformedData = apiData.map(item => ({
+                    date: item.Date,
+                    time: item.Time.split('-')[0], // Get start hour
+                    weekday: item.Weekday,
+                    temperature: item.Temperature,
+                    humidity: item.Humidity,
+                    weather: item.Condition,
+                    windspeed: item.Wind_Speed,
+                    load: item.Load,
+                    event: item.Event || 'None'
+                }));
+
+                setGridData(transformedData);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (date) fetchData();
+    }, [date]);
+
+    if (loading) return <div>Loading data...</div>;
+    if (error) return <div>Error: {error}</div>;
+    if (gridData.length === 0) return <div>No data available for selected date</div>;
 
     return (
         <div className="sm:p-4">
             <div className="table_box bg-[#F2EFDF]">
                 {/* Table header */}
-                <div className="bg-[#AABFB9] grid grid-cols-6 gap-4 text-center border-2 border-[#283845]">
+                <div className="bg-[#AABFB9] grid grid-cols-7 gap-4 text-center border-2 border-[#283845]">
                     <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Date</div>
                     <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Time</div>
                     <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Weekday</div>
                     <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Temperature (°C)</div>
                     <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Humidity (%)</div>
-                    <div className="text-[20px] font-bold p-2">Weather Condition</div>
+                    <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Weather</div>
+                    <div className="text-[20px] font-bold p-2">Load (MW)</div>
                 </div>
 
                 {/* Table data */}
-                {electricityData.map((data, index) => (
+                {gridData.map((data, index) => (
                     <div className='border-2 border-b-0 last:border-b-2 border-[#283845]' key={index}>
-                        <div className="grid grid-cols-6 gap-4">
+                        <div className="grid grid-cols-7 gap-4">
                             <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.date}</div>
                             <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.time}</div>
                             <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.weekday}</div>
                             <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.temperature}</div>
                             <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.humidity}</div>
-                            <div className="text-[18px] p-2">{data.weather}</div>
+                            <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.weather}</div>
+                            <div className="text-[18px] p-2">{data.load}</div>
                         </div>
                     </div>
                 ))}

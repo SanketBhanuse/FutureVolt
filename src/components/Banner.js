@@ -12,3 +12,5 @@ const Banner = ({ imgmob, imgdesk }) => {
 }
 
 export default Banner
+
+
