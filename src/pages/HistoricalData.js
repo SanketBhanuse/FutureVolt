@@ -10,7 +10,13 @@ const HistoricalData = () => {
     const [showCompany, setShowCompany] = useState(false);
     const [showGraph, setShowGraph] = useState(true); // Show graph by default
     const [showGrid, setShowGrid] = useState(false);
-    const [selectedDate, setSelectedDate] = useState('01-01-2020'); // Default date matching your sample data
+    const [selectedDate, setSelectedDate] = useState(() => {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        const formatted = yesterday.toLocaleDateString('en-GB').split('/').join('-'); // dd-mm-yyyy
+        return formatted;
+    }); // Default date matching your sample data
     // const [selectedEvent, setSelectedEvent] = useState('');
     // const [selectedSeason, setSelectedSeason] = useState('');
     // const [selectedCompany, setSelectedCompany] = useState('');
