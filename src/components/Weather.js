@@ -1,12 +1,87 @@
-import React from 'react'
+
+// Weather.js
+import React, { useState, useEffect } from 'react';
 import icon from '../assets/weathericons/thunderstorm.svg';
 import WeatherChart from './WeatherChart';
 import { WiHumidity } from "react-icons/wi";
 import { TiWeatherCloudy } from "react-icons/ti";
 import { FiWind } from "react-icons/fi";
 import { CiCalendarDate } from "react-icons/ci";
+import { MdOutlineElectricBolt } from "react-icons/md";
 
 const Weather = () => {
+    const [weatherData, setWeatherData] = useState([]);
+    const [currentWeather, setCurrentWeather] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [totalLoad, setTotalLoad] = useState(0);
+
+    // Get current date in DD-MM-YYYY format
+    const getCurrentDate = () => {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
+
+    // Fetch weather data for today
+    useEffect(() => {
+        const fetchWeatherData = async () => {
+            try {
+                const currentDate = getCurrentDate();
+                const response = await fetch(`https://futurevolt-backend.onrender.com/api/load/${currentDate}`);
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+
+                if (data && data.length > 0) {
+                    setWeatherData(data);
+                    setCurrentWeather(data[0]); // Use first entry for current weather
+
+                    // Calculate total load for the day
+                    const sum = data.reduce((total, entry) => total + (entry.Load || 0), 0);
+                    setTotalLoad(sum);
+                }
+
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchWeatherData();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="text-[#0F1926] text-lg">Loading weather data...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="text-[#BF7C41] text-lg">Error: {error}</div>
+            </div>
+        );
+    }
+
+    if (!weatherData || weatherData.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-64 bg-[#F2EFDF] rounded-md"
+                style={{ border: '2px dashed #AABFB9' }}>
+                <div className="text-[#0F1926] text-xl font-bold">No weather data available</div>
+            </div>
+        );
+    }
+
     return (
         <div className='sm:p-4'>
             <div className="Header my-[20px]">
@@ -19,22 +94,38 @@ const Weather = () => {
                             <div className="icon">
                                 <img className="w-20" src={icon} alt="" />
                             </div>
-                            <div className=" font-bold text-[60px] text-[#F2EFDF]">27°C</div>
+                            <div className=" font-bold text-[60px] text-[#F2EFDF]">{currentWeather.Temperature}°C</div>
                         </div>
                         <div className="info flex flex-col gap-2  text-[#F2EFDF]">
-                            <div className="weekday flex gap-2 items-center"><CiCalendarDate className='text-[28px] text-[#BF7C41]' /> Weekday : Saturday</div>
-                            <div className="humidity flex gap-2 items-center"><WiHumidity className='text-[28px] text-[#BF7C41]' /> Humidity : 95%</div>
-                            <div className="weather  flex gap-2 items-center"><TiWeatherCloudy className='text-[28px] text-[#BF7C41]' />Weather : Fog</div>
-                            <div className="windspeed  flex gap-2 items-center"><FiWind className='text-[28px] text-[#BF7C41]' /> Wind Speed : 7km/h</div>
+                            <div className="weekday flex gap-2 items-center">
+                                <CiCalendarDate className='text-[28px] text-[#BF7C41]' />
+                                Weekday : {currentWeather.Weekday}
+                            </div>
+                            <div className="humidity flex gap-2 items-center">
+                                <WiHumidity className='text-[28px] text-[#BF7C41]' />
+                                Humidity : {currentWeather.Humidity}%
+                            </div>
+                            <div className="weather flex gap-2 items-center">
+                                <TiWeatherCloudy className='text-[28px] text-[#BF7C41]' />
+                                Weather : {currentWeather.Condition}
+                            </div>
+                            <div className="windspeed flex gap-2 items-center">
+                                <FiWind className='text-[28px] text-[#BF7C41]' />
+                                Wind Speed : {currentWeather.Wind_Speed} km/h
+                            </div>
+                            <div className="totalload flex gap-2 items-center">
+                                <MdOutlineElectricBolt className='text-[28px] text-[#BF7C41]' />
+                                Total Load : {totalLoad.toFixed(2)} MW
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div className='col-span-7'>
-                    <WeatherChart />
+                    <WeatherChart weatherData={weatherData} />
                 </div>
             </div>
         </div>
     )
 }
 
-export default Weather
+export default Weather;

@@ -9,50 +9,104 @@ Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, L
 const CurrentPeakDemand = ({ bar, line }) => {
     const navigate = useNavigate();
     const [peakDemand, setPeakDemand] = useState(0);
+    const [peakDemandTime, setPeakDemandTime] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [apiData, setApiData] = useState([]);
 
     const gotoFutureData = () => {
         navigate('/futuredata');
     };
 
-    // Generate random electricity demand data and get the peak demand
-    const generateRandomData = () => {
-        const data = [];
-        for (let i = 0; i < 24; i++) {
-            data.push(Math.floor(Math.random() * 7000) + 18000); // Random values between 18,000 and 25,000
-        }
-        return data;
+    // Get current date in DD-MM-YYYY format
+    const getCurrentDate = () => {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        return `${day}-${month}-${year}`;
     };
 
-    // Get current hour labels (0 to 23)
-    const generateHourLabels = () => {
-        return Array.from({ length: 24 }, (_, i) => `${i}:00`);
-    };
-
-    const [dataArray, setDataArray] = useState(generateRandomData());
-
+    // Fetch current date data from API
     useEffect(() => {
-        // Find the peak demand value when dataArray changes
-        const peakDemandIndex = dataArray.indexOf(Math.max(...dataArray));
-        const peakValue = dataArray[peakDemandIndex];
-        setPeakDemand(peakValue); // Set peak demand value in the state
-    }, [dataArray]); // Runs only when dataArray changes
+        const fetchData = async () => {
+            try {
+                const currentDate = getCurrentDate();
+                const response = await fetch(`https://futurevolt-backend.onrender.com/api/load/${currentDate}`);
 
-    const peakDemandIndex = dataArray.indexOf(Math.max(...dataArray)); // Find the index of peak demand
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                setApiData(data);
+
+                if (data && data.length > 0) {
+                    // Find peak demand
+                    const peakEntry = data.reduce((max, entry) =>
+                        entry.Load > max.Load ? entry : max, data[0]);
+
+                    setPeakDemand(peakEntry.Load);
+
+                    // Extract time from Time field (e.g., "11:00-12:00" -> "11:00")
+                    const peakTime = peakEntry.Time.split('-')[0].trim();
+                    setPeakDemandTime(peakTime);
+                }
+
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="text-[#0F1926] text-lg">Loading current demand data...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="text-[#BF7C41] text-lg">Error: {error}</div>
+            </div>
+        );
+    }
+
+    if (!apiData || apiData.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-64 bg-[#F2EFDF] rounded-md"
+                style={{ border: '2px dashed #AABFB9' }}>
+                <div className="text-[#0F1926] text-xl font-bold">No data available for today</div>
+            </div>
+        );
+    }
+
+    // Process data for chart
+    const labels = apiData.map(item => item.Time.split('-')[0].trim());
+    const loadData = apiData.map(item => item.Load);
+    const peakDemandIndex = loadData.indexOf(Math.max(...loadData));
 
     const data = {
-        labels: generateHourLabels(),
+        labels,
         datasets: [
             {
                 label: 'Electricity Demand (MW)',
-                data: dataArray,
-                backgroundColor: dataArray.map((_, index) =>
-                    index === peakDemandIndex ? 'rgba(191, 124, 65, 0.7)' : 'rgba(170,191,185,0.5)' // Highlight peak demand bar
+                data: loadData,
+                backgroundColor: loadData.map((_, index) =>
+                    index === peakDemandIndex ? 'rgba(191, 124, 65, 0.7)' : 'rgba(170,191,185,0.5)'
                 ),
-                borderColor: dataArray.map((_, index) =>
-                    index === peakDemandIndex ? 'rgba(191, 124, 65, 1)' : 'rgba(170,191,185,1)' // Highlight peak demand border
+                borderColor: loadData.map((_, index) =>
+                    index === peakDemandIndex ? 'rgba(191, 124, 65, 1)' : 'rgba(170,191,185,1)'
                 ),
                 borderWidth: 1,
-                tension: 0.4, // Adds smooth curves
+                tension: 0.4,
             },
         ],
     };
@@ -65,7 +119,12 @@ const CurrentPeakDemand = ({ bar, line }) => {
             },
             title: {
                 display: true,
-                text: 'Electricity Demand for Today (Hourly)',
+                text: `Electricity Demand for ${getCurrentDate()} (Hourly)`,
+                color: '#0F1926',
+                font: {
+                    size: 16,
+                    weight: 'bold'
+                }
             },
             tooltip: {
                 callbacks: {
@@ -81,6 +140,11 @@ const CurrentPeakDemand = ({ bar, line }) => {
                         return label;
                     },
                 },
+                backgroundColor: '#F2EFDF',
+                titleColor: '#0F1926',
+                bodyColor: '#0F1926',
+                borderColor: '#BF7C41',
+                borderWidth: 1
             },
         },
         scales: {
@@ -88,16 +152,39 @@ const CurrentPeakDemand = ({ bar, line }) => {
                 title: {
                     display: true,
                     text: 'Hours',
+                    color: '#0F1926'
                 },
+                grid: {
+                    color: '#AABFB9'
+                },
+                ticks: {
+                    color: '#0F1926'
+                }
             },
             y: {
                 title: {
                     display: true,
                     text: 'Electricity Demand (MW)',
+                    color: '#0F1926'
                 },
                 beginAtZero: true,
+                grid: {
+                    color: '#AABFB9'
+                },
+                ticks: {
+                    color: '#0F1926'
+                }
             },
         },
+    };
+
+    // Format time for display (convert "11:00" to "11:00 AM/PM")
+    const formatTimeDisplay = (timeString) => {
+        const [hours, minutes] = timeString.split(':');
+        const hourNum = parseInt(hours, 10);
+        const period = hourNum >= 12 ? 'PM' : 'AM';
+        const displayHour = hourNum;
+        return `${displayHour}:00`;
     };
 
     return (
@@ -112,8 +199,12 @@ const CurrentPeakDemand = ({ bar, line }) => {
                 </div>
                 <div className="info p-10 col-span-10 text-center md:col-span-3 flex justify-center items-center">
                     <div className='p-5 rounded-md flex justify-center items-center flex-col gap-3' style={{ boxShadow: '0px 0px 10px 1px rgba(40, 56, 69, 0.75)' }}>
-                        <div className="Sub_Heading text-[#BF7C41] font-semibold">Peak Demand: {peakDemand} MW 21/9/2024 at {peakDemandIndex}:00{peakDemandIndex < 12 ? "AM" : "PM"}</div>
-                        <div className="Description">The electricity demand for today fluctuated steadily, with the highest peak recorded at {peakDemand} MW around {peakDemandIndex}:00{peakDemandIndex < 12 ? "AM" : "PM"} </div>
+                        <div className="Sub_Heading text-[#BF7C41] font-semibold">
+                            Peak Demand: {peakDemand} MW on {getCurrentDate()} at {formatTimeDisplay(peakDemandTime)}
+                        </div>
+                        <div className="Description">
+                            The electricity demand for today shows the highest peak at {peakDemand} MW around {formatTimeDisplay(peakDemandTime)}
+                        </div>
                         <Button event={gotoFutureData} buttonName={"For Forecast Data"} />
                     </div>
                 </div>
