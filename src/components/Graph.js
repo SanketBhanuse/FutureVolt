@@ -12,7 +12,7 @@ const Graph = ({ date, selectedOption }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/load/${date}`);
+                const response = await fetch(`https://futurevolt-backend.onrender.com/api/load/${date}`);
                 if (!response.ok) throw new Error('Network response was not ok');
 
                 const apiData = await response.json();
