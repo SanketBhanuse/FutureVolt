@@ -40,7 +40,18 @@ function Grid({ date }) {
 
     if (loading) return <div>Loading data...</div>;
     if (error) return <div>Error: {error}</div>;
-    if (gridData.length === 0) return <div>No data available for selected date</div>;
+    if (gridData.length === 0) return (
+        <div className="flex items-center justify-center h-64 bg-[#F2EFDF] rounded-md"
+            style={{ border: '2px dashed #AABFB9' }}>
+            <div className="text-[#0F1926] text-xl font-bold">No data available</div>
+        </div>
+    )
+    // if (!gridData) return (
+    //     <div className="flex items-center justify-center h-64 bg-[#F2EFDF] rounded-md"
+    //         style={{ border: '2px dashed #AABFB9' }}>
+    //         <div className="text-[#0F1926] text-xl font-bold">No data available</div>
+    //     </div>
+    // );
 
     return (
         <div className="sm:p-4">
@@ -70,6 +81,9 @@ function Grid({ date }) {
                         </div>
                     </div>
                 ))}
+
+
+
             </div>
         </div>
     );
