@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import logo from '../assets/logo.png'
 
 const Header = () => {
@@ -9,6 +9,15 @@ const Header = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
+    // Base style for all links
+    const baseLinkStyle = 'block py-2 pr-4 pl-3 border-b border-gray-100 lg:border-0 lg:p-0 dark:border-gray-700';
+
+    // Normal state style
+    const normalStyle = 'text-gray-700 hover:bg-gray-50 lg:hover:bg-transparent lg:hover:text-primary-700 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent';
+
+    // Active state style
+    const activeStyle = 'text-white bg-primary-700 lg:bg-transparent lg:text-primary-700 dark:text-white lg:dark:text-white';
+
     return (
         <header className='z-10 sticky top-0'>
             <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-[#283845]">
@@ -17,8 +26,7 @@ const Header = () => {
                         <img src={logo} className="mr-3 h-6 sm:h-9" alt="FutureVolt Logo" />
                         <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Future Volt</span>
                     </div>
-                    <div className=" md:hidden flex items-center lg:order-2">
-
+                    <div className="md:hidden flex items-center lg:order-2">
                         <button
                             data-collapse-toggle="mobile-menu-2"
                             type="button"
@@ -49,12 +57,31 @@ const Header = () => {
                     </div>
                     <div className={`${isMenuOpen ? 'block' : 'hidden'} justify-between items-center w-full lg:flex lg:w-auto lg:order-1`} id="mobile-menu-2">
                         <div className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-                            <Link className='block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700' to="/">Home</Link>
-                            <Link className='block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700' to="/historicaldata">Historical Data</Link>
-                            <Link className='block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700' to="/futuredata">Forecast Data</Link>
-                            {/* <Link className='block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700' to="/rainfalldata">Rainfall Data</Link>
-                            <Link className='block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700' to="/solardata">Solar Data</Link> */}
-                            {/* <Link className='block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700' to="/About">About</Link> */}
+                            <NavLink
+                                to="/"
+                                end
+                                className={({ isActive }) =>
+                                    `${baseLinkStyle} ${isActive ? activeStyle : normalStyle}`
+                                }
+                            >
+                                Home
+                            </NavLink>
+                            <NavLink
+                                to="/historicaldata"
+                                className={({ isActive }) =>
+                                    `${baseLinkStyle} ${isActive ? activeStyle : normalStyle}`
+                                }
+                            >
+                                Historical Data
+                            </NavLink>
+                            <NavLink
+                                to="/futuredata"
+                                className={({ isActive }) =>
+                                    `${baseLinkStyle} ${isActive ? activeStyle : normalStyle}`
+                                }
+                            >
+                                Forecast Data
+                            </NavLink>
                         </div>
                     </div>
                 </div>
