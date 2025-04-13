@@ -61,15 +61,16 @@ function Grid({ date, isForecast = false, forecastData = [] }) {
     }));
 
     return (
-        <div className="sm:p-4">
+        <div>
             <div className="table_box bg-[#F2EFDF]">
                 {/* Table header */}
-                <div className="bg-[#AABFB9] grid grid-cols-7 gap-4 text-center border-2 border-[#283845]">
+                <div className="bg-[#AABFB9] grid grid-cols-8 gap-2 text-center border-2 border-[#283845]">
                     <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Date</div>
                     <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Time</div>
                     <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Weekday</div>
                     <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Temperature (°C)</div>
                     <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Humidity (%)</div>
+                    <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Wind Speed</div>
                     <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Weather</div>
                     <div className="text-[20px] font-bold p-2">
                         {isForecast ? 'Forecast Load (MW)' : 'Load (MW)'}
@@ -79,12 +80,13 @@ function Grid({ date, isForecast = false, forecastData = [] }) {
                 {/* Table data */}
                 {transformedData.map((data, index) => (
                     <div className='border-2 border-b-0 last:border-b-2 border-[#283845]' key={index}>
-                        <div className="grid grid-cols-7 gap-4">
+                        <div className="grid grid-cols-8 text-center gap-2">
                             <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.date}</div>
                             <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.time}</div>
                             <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.weekday}</div>
                             <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.temperature}</div>
                             <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.humidity}</div>
+                            <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.windspeed}</div>
                             <div className="text-[18px] p-2 border-r-2 border-[#283845]">{data.weather}</div>
                             <div className="text-[18px] p-2">{data.load}</div>
                         </div>
