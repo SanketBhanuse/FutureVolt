@@ -65,8 +65,8 @@ const CurrentPeakDemand = ({ bar, line }) => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <div className="text-[#0F1926] text-lg">Loading current demand data...</div>
+            <div className="h-64 w-full bg-gray-300 rounded animate-pulse flex items-center justify-center">
+                <div className="text-gray-600 text-lg font-medium">Loading...</div>
             </div>
         );
     }

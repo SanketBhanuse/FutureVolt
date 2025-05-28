@@ -28,8 +28,8 @@ function Grid({ date, isForecast = false, forecastData = [] }) {
     }, [date, isForecast]);
 
     if (loading) return (
-        <div className="flex items-center justify-center h-64">
-            <div className="text-[#0F1926] text-lg">Loading data...</div>
+        <div className="h-64 w-full bg-gray-300 rounded animate-pulse flex items-center justify-center">
+            <div className="text-gray-600 text-lg font-medium">Loading...</div>
         </div>
     );
 
@@ -62,7 +62,7 @@ function Grid({ date, isForecast = false, forecastData = [] }) {
 
     return (
         <div>
-            <div className="table_box bg-[#F2EFDF]">
+            <div className="table_box bg-[#F2EFDF] scroll-auto md:scroll-0">
                 {/* Table header */}
                 <div className="bg-[#AABFB9] grid grid-cols-8 gap-2 text-center border-2 border-[#283845]">
                     <div className="text-[20px] font-bold p-2 border-r-2 border-[#283845]">Date</div>

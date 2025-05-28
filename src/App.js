@@ -9,6 +9,7 @@ import RainfallData from './pages/RainfallData';
 import SolarData from './pages/SolarData';
 import ErrorPage from './pages/ErrorPage';
 import Footer from './components/Footer';
+// import ChatBot from './components/ChatBot';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="*" element={<ErrorPage />} />
         </Routes>
         <Footer />
+        <ChatBot />
       </BrowserRouter>
     </div>
   );
