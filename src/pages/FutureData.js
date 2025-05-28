@@ -136,7 +136,7 @@ const Forecast = () => {
             {/* Data Visualization Section */}
             <div className="mt-6">
                 {loading ? (
-                    <div className="h-64 w-full bg-gray-300 rounded animate-pulse flex items-center justify-center">
+                    <div className="h-64 w-full bg-gray-500 rounded animate-pulse flex items-center justify-center">
                         <div className="text-gray-600 text-lg font-medium">Loading FOrecast Data...</div>
                     </div>
                 ) : (
